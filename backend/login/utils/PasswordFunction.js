@@ -1,4 +1,4 @@
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 // function utilise pour crypte mdp
 const hPassword = async (pwd) => {
   try {
