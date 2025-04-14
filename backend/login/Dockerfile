@@ -1,18 +1,20 @@
-# Utilise l'image officielle de Node.js comme base
+# Utilise l'image officielle de Node.js
 FROM node:14
 
-# Crée le répertoire de travail
+# Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copie le fichier package.json et installe les dépendances
+# Copier le fichier package.json pour installer les dépendances
 COPY package.json /app/
+
+# Installer les dépendances
 RUN npm install
 
-# Copie le code source dans le conteneur
+# Copier le code source de l'application dans le conteneur
 COPY src/ /app/src/
 
-# Expose le port sur lequel l'application écoutera (par exemple, 3000)
-EXPOSE 7002
+# Exposer le port sur lequel l'application s'exécute
+EXPOSE 3000
 
-# Commande par défaut pour démarrer l'application
+# Commande à exécuter pour démarrer l'application
 CMD ["npm", "start"]

@@ -5,26 +5,29 @@ on:
     branches:
       - main
     paths:
-      - 'backend/login/**'
+      - 'backend/login/**'  # Déclenche l'action uniquement pour les fichiers du service Login
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest  # Utilise un environnement Ubuntu
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3  # Cette étape récupère le code source du dépôt
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2  # Configure Docker Buildx pour faciliter la construction de l'image
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2  # Se connecte à Docker Hub
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKER_USERNAME }}  # Utilisation du secret Docker Hub pour l'utilisateur
+          password: ${{ secrets.DOCKER_PASSWORD }}  # Utilisation du secret Docker Hub pour le mot de passe
 
       - name: Build Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/login-service:latest ./backend/login
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/login-service:latest ./backend/login  # Construit l'image Docker pour le service Login
 
       - name: Push Docker Image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/login-service:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/login-service:latest  # Pousse l'image vers Docker Hub
