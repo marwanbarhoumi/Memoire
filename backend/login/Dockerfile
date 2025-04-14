@@ -1,8 +1,11 @@
-# Example minimal Dockerfile
-FROM node:18-alpine
+FROM node:14
+
 WORKDIR /app
+
 COPY package*.json ./
 RUN npm install
+
 COPY . .
-EXPOSE 7003
+
+EXPOSE 3000
 CMD ["npm", "start"]
