@@ -2,9 +2,9 @@ name: Build, Test and Push Login Service Docker Image
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
     paths:
-      - 'backend/login/**'
+      - 'backend/login/**'  # adapte ce chemin selon la structure exacte de ton repo
 
 jobs:
   build:
@@ -14,27 +14,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Debug – repository structure
+      - name: Debug – structure du repo
         run: |
-          echo "== Root content =="
+          echo "== Contenu racine =="
           ls -1
-          echo "== backend/login content =="
-          ls -1 backend/login || echo "backend/login directory not found"
+          echo "== Contenu backend/login =="
+          ls -1 backend/login
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # Updated from 14 to meet dependency requirements
+          node-version: '14'
 
       - name: Install dependencies
         working-directory: backend/login
-        run: |
-          # Create package.json if missing (safety check)
-          if [ ! -f package.json ]; then
-            npm init -y
-            echo "Created temporary package.json"
-          fi
-          npm install
+        run: npm install
 
       - name: Run Tests
         working-directory: backend/login
@@ -49,10 +43,9 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and Push Docker Image
-  run: |
-    docker buildx build \
-      --tag ${{ secrets.DOCKER_USERNAME }}/login-service:latest \
-      --platform linux/amd64 \
-      --push \
-      ./backend/login  # <-- This is the crucial path fix
+      - name: Build Docker Image
+        run: docker buildx build backend/login --tag ${{ secrets.DOCKER_USERNAME }}/login-service:latest --load
+
+
+      - name: Push Docker Image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/login-service:latest
