@@ -1,16 +1,11 @@
 {
-  "name": "login",
+  "name": "login-service",
   "version": "1.0.0",
-  "main": "server.js",
-  "devDependencies": {
-    "jest": "^27.0.0"
-  },
   "scripts": {
-    "test": "jest",
-    "start": "node server.js"
+    "start": "node src/index.js",
+    "test": "jest"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
