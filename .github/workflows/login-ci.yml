@@ -44,7 +44,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker Image
-        run: docker buildx build backend/login --tag ${{ secrets.DOCKER_USERNAME }}/login-service:latest --load
+        run: docker buildx build -t backend/login-service:latest ./backend/login
 
       - name: Push Docker Image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/login-service:latest
