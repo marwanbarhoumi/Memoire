@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'backend/login/**'
+      - 'backend/login/**'          # ou 'site-ecommerce/backend/login/**' selon votre arborescence
 
 jobs:
   build:
@@ -16,12 +16,10 @@ jobs:
 
       - name: Debug – structure du repo
         run: |
-          echo "== Racine du repo =="
-          ls -la
-          echo "== backend =="
-          ls -la backend
-          echo "== backend/login =="
-          ls -la backend/login
+          echo "== Contenu racine =="
+          ls -1
+          echo "== Contenu backend/login =="
+          ls -1 backend/login
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
