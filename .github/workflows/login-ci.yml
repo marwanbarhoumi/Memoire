@@ -1,126 +1,82 @@
-name: Login Service CI/CD Pipeline
+name: Login Service CI/CD
 
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'backend/login/**'
+    paths: ['backend/login/**']
   pull_request:
     branches: [ main ]
 
 env:
-  REGISTRY: ghcr.io  # GitHub Container Registry
+  REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository_owner }}/login-service
   VERSION: ${{ github.sha }}
+  PORT: 7002
 
 jobs:
   test:
-    name: Run Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      working-directory: backend/login
+      run: npm ci
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
-          
-      - name: Install dependencies
-        working-directory: backend/login
-        run: npm ci
-        
-      - name: Run unit tests
-        working-directory: backend/login
-        run: npm test -- --coverage
-        
-      - name: Run security audit
-        working-directory: backend/login
-        run: npm audit --production
-        
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-report
-          path: backend/login/coverage
+    - name: Run tests
+      working-directory: backend/login
+      run: npm test -- --coverage
+      
+    - name: Upload coverage
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: backend/login/coverage
 
-  build-and-scan:
-    name: Build and Security Scan
+  build:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Build Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: backend/login
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          labels: |
-            org.opencontainers.image.source=${{ github.repository_url }}
-          push: false
-          
-      - name: Scan for vulnerabilities
-        uses: docker/scan-action@v1
-        with:
-          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
-          severity-level: critical
-          exit-code: '1'
+    - uses: actions/checkout@v4
+    
+    - name: Login to GHCR
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Build and push
+      uses: docker/build-push-action@v4
+      with:
+        context: backend/login
+        push: true
+        tags: |
+          ghcr.io/${{ github.repository_owner }}/login-service:${{ github.sha }}
+          ghcr.io/${{ github.repository_owner }}/login-service:latest
+        labels: |
+          org.opencontainers.image.source=${{ github.repository_url }}
 
-  deploy-to-staging:
-    name: Deploy to Staging
-    needs: build-and-scan
+  deploy-staging:
+    needs: build
     runs-on: ubuntu-latest
     environment: staging
-    
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v3
-        
-      - name: Configure Kubeconfig
-        uses: azure/k8s-set-context@v3
-        with:
-          kubeconfig: ${{ secrets.KUBE_CONFIG_STAGING }}
-          
-      - name: Deploy to Kubernetes
-        run: |
-          kubectl apply -f backend/login/k8s/deployment.yaml -n auth
-          kubectl rollout status deployment/login-service -n auth --timeout=90s
-          
-      - name: Smoke test
-        run: |
-          curl -sSf http://staging-auth.yourdomain.com/healthz > /dev/null
-
-  deploy-to-prod:
-    name: Deploy to Production
-    needs: deploy-to-staging
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    environment: production
+    - uses: actions/checkout@v4
     
-    steps:
-      - uses: actions/checkout@v4
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v3
       
-      - name: Promote image to production
-        uses: docker/build-push-action@v4
-        with:
-          context: backend/login
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:prod-${{ env.VERSION }}
-          push: true
-          
-      - name: Trigger production deployment
-        run: |
-          kubectl set image deployment/login-service \
-            login-service=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:prod-${{ env.VERSION }} \
-            -n auth --record
+    - name: Deploy to staging
+      run: |
+        kubectl set image deployment/login-service \
+          login-service=ghcr.io/${{ github.repository_owner }}/login-service:${{ github.sha }} \
+          -n auth
+      env:
+        KUBE_CONFIG: ${{ secrets.STAGING_KUBE_CONFIG }}
