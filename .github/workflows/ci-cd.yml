@@ -1,33 +1,12 @@
-name: Build and Deploy Docker Image
-
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'backend/login/**'  # Pour écouter les changements dans le dossier login
-
 jobs:
   build:
-    runs-on: ubuntu-latest  # Utilise un runner Ubuntu
-
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3  # Récupère le code du dépôt
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2  # Configure Docker Buildx pour un meilleur support
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2  # Se connecte à Docker Hub
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build Docker Image
+      - uses: actions/checkout@v4
+      
+      - name: Naviguer vers backend/login
+        working-directory: ./backend/login  # <-- Clé importante !
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/login-service:latest ./backend/login
-
-      - name: Push Docker Image
-        run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/login-service:latest
+          ls -la  # Affiche les fichiers pour débogage
+          npm install
+          npm run build
