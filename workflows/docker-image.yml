@@ -21,8 +21,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/gateway:latest ./backend/gateway
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/getbody:latest ./backend
 
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/gateway:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/getbody:latest
