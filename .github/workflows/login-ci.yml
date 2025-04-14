@@ -2,9 +2,9 @@ name: Build, Test and Push Login Service Docker Image
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'backend/login/**'  # adapte ce chemin selon la structure exacte de ton repo
+      - 'backend/login/**'
 
 jobs:
   build:
@@ -14,21 +14,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Debug – structure du repo
+      - name: Debug - repository structure
         run: |
-          echo "== Contenu racine =="
+          echo "== Root content =="
           ls -1
-          echo "== Contenu backend/login =="
-          ls -1 backend/login
+          echo "== backend/login content =="
+          ls -1 backend/login || echo "Directory not found"
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: '18'  # Recommandé plutôt que Node 14
+          cache: 'npm'
 
       - name: Install dependencies
         working-directory: backend/login
-        run: npm install
+        run: npm ci  # Préférable à npm install pour la CI
 
       - name: Run Tests
         working-directory: backend/login
@@ -40,15 +41,12 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build Docker Image
-        run: |
-             docker buildx build \
-             --push \
-             --tag ${{ secrets.DOCKER_USERNAME }}/login-service:latest \
-             ./backend/login
-
-      - name: Push Docker Image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/login-service:latest
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./backend/login
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/login-service:latest
