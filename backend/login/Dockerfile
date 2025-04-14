@@ -1,20 +1,15 @@
-# Utilise l'image officielle de Node.js
-FROM node:14
+# Étape 1 : Utiliser une image de base Node.js
+FROM node:14 AS build
 
-# Définir le répertoire de travail dans le conteneur
+# Définir le répertoire de travail dans le container
 WORKDIR /app
 
-# Copier le fichier package.json pour installer les dépendances
-COPY package.json /app/
+# Copier package.json et package-lock.json pour installer les dépendances
+COPY package.json package-lock.json ./
+RUN npm install  # Installer les dépendances
 
-# Installer les dépendances
-RUN npm install
+# Copier tous les fichiers du projet dans l'image
+COPY . .
 
-# Copier le code source de l'application dans le conteneur
-COPY src/ /app/src/
-
-# Exposer le port sur lequel l'application s'exécute
-EXPOSE 3000
-
-# Commande à exécuter pour démarrer l'application
-CMD ["npm", "start"]
+# Étape 2 : Exécuter l'application
+CMD ["npm", "start"]  # Assurez-vous que vous avez un script 'start' dans votre package.json
