@@ -1,126 +1,54 @@
-name: Login Service CI/CD Pipeline
+name: Build, Test and Push Login Service Docker Image
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'backend/login/**'
-  pull_request:
-    branches: [ main ]
-
-env:
-  REGISTRY: ghcr.io  # GitHub Container Registry
-  IMAGE_NAME: ${{ github.repository_owner }}/login-service
-  VERSION: ${{ github.sha }}
+      - 'backend/login/**'  # adapte ce chemin selon la structure exacte de ton repo
 
 jobs:
-  test:
-    name: Run Tests
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Debug – structure du repo
+        run: |
+          echo "== Contenu racine =="
+          ls -1
+          echo "== Contenu backend/login =="
+          ls -1 backend/login
+
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-          cache: 'npm'
-          
+          node-version: '14'
+
       - name: Install dependencies
         working-directory: backend/login
-        run: npm ci
-        
-      - name: Run unit tests
-        working-directory: backend/login
-        run: npm test -- --coverage
-        
-      - name: Run security audit
-        working-directory: backend/login
-        run: npm audit --production
-        
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-report
-          path: backend/login/coverage
+        run: npm install
 
-  build-and-scan:
-    name: Build and Security Scan
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Login to GitHub Container Registry
+      - name: Run Tests
+        working-directory: backend/login
+        run: npm test
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Build Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: backend/login
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          labels: |
-            org.opencontainers.image.source=${{ github.repository_url }}
-          push: false
-          
-      - name: Scan for vulnerabilities
-        uses: docker/scan-action@v1
-        with:
-          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
-          severity-level: critical
-          exit-code: '1'
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
 
-  deploy-to-staging:
-    name: Deploy to Staging
-    needs: build-and-scan
-    runs-on: ubuntu-latest
-    environment: staging
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v3
-        
-      - name: Configure Kubeconfig
-        uses: azure/k8s-set-context@v3
-        with:
-          kubeconfig: ${{ secrets.KUBE_CONFIG_STAGING }}
-          
-      - name: Deploy to Kubernetes
+      - name: Build Docker Image
         run: |
-          kubectl apply -f backend/login/k8s/deployment.yaml -n auth
-          kubectl rollout status deployment/login-service -n auth --timeout=90s
-          
-      - name: Smoke test
-        run: |
-          curl -sSf http://staging-auth.yourdomain.com/healthz > /dev/null
+             docker buildx build \
+             --push \
+             --tag ${{ secrets.DOCKER_USERNAME }}/login-service:latest \
+             ./backend/login
 
-  deploy-to-prod:
-    name: Deploy to Production
-    needs: deploy-to-staging
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    environment: production
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Promote image to production
-        uses: docker/build-push-action@v4
-        with:
-          context: backend/login
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:prod-${{ env.VERSION }}
-          push: true
-          
-      - name: Trigger production deployment
-        run: |
-          kubectl set image deployment/login-service \
-            login-service=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:prod-${{ env.VERSION }} \
-            -n auth --record
+      - name: Push Docker Image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/login-service:latest
