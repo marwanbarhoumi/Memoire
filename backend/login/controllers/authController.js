@@ -1,6 +1,7 @@
 const userModel = require("../model/User");
 const { hPassword, comparePwd } = require("../utils/PasswordFunction");
 const createToken = require("../utils/Token");
+
 module.exports.register = async (req, res) => {
   const { email, password } = req.body;
   console.log(req.body);
@@ -19,7 +20,7 @@ module.exports.register = async (req, res) => {
     const user = new userModel({ ...req.body, password: hashedPassword });
     await user.save();
 
-    res.send({ msg: "The user was successfully created" });
+    res.status(201).send({ msg: "The user was successfully created" });
   } catch (error) {
     res.status(500).send({ msg: error.message });
   }
@@ -30,31 +31,42 @@ module.exports.loginuser = async (req, res) => {
   console.log(req.body);
 
   try {
-    // 1)Vérifier si l'utilisateur existe
+    // 1) Vérifier si l'utilisateur existe
     const existeUser = await userModel.findOne({ email });
 
     if (!existeUser) {
       return res.status(400).send({ msg: "bad cridentials(email)" });
     }
-    //2) verification de password
-    const match = await  comparePwd(password, existeUser.password);
+
+    // 2) Vérification du mot de passe
+    const match = await comparePwd(password, existeUser.password);
     if (!match) {
       return res.status(400).send({ msg: "bad cridentials(password)" });
     }
-    //3)creation de token
+
+    // 3) Création du token
     const payload = { userid: existeUser._id };
     const token = createToken(payload);
-    existeUser.password = undefined;
 
-    //4)reponse
-    res.send({ token, msg: "user successfully logged in", user: existeUser });
+    // Retirer le mot de passe avant de renvoyer l'utilisateur
+    const userToReturn = existeUser.toObject();
+    delete userToReturn.password;
+
+    // 4) Réponse
+    res.status(200).send({
+      token,
+      msg: "user successfully logged in",
+      user: userToReturn,
+    });
   } catch (error) {
     res.status(500).send({ msg: error.message });
   }
 };
+
+
 module.exports.getCurrentUser = async (req, res) => {
   try {
-    res.send({ user: req.user });
+    res.status(200).send({ user: req.user });
   } catch (error) {
     res.status(500).send({ msg: error.message });
   }
@@ -63,9 +75,8 @@ module.exports.getCurrentUser = async (req, res) => {
 module.exports.getAllUsers = async (req, res) => {
   try {
     const allUsers = await userModel.find();
-    res.send({ users: allUsers });
+    res.status(200).send({ users: allUsers });
   } catch (error) {
     res.status(500).send({ msg: error.message });
   }
 };
-
