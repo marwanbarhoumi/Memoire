@@ -1,153 +1,114 @@
-// Importations regroupées et organisées
-const {
-  loginUser
-} = require('../../controllers/authController');
-
-const {
-  comparePwd
-} = require('../../utils/PasswordFunction');
-
-const {
-  createToken
-} = require('../../utils/Token');
+// Importations organisées
+const { loginUser } = require('../../controllers/authController');
+const { comparePwd } = require('../../utils/PasswordFunction');
+const { createToken } = require('../../utils/Token');
 
 // Mock des dépendances
 jest.mock('../../utils/PasswordFunction');
 jest.mock('../../utils/Token');
 jest.mock('../../model/User');
 
-describe('Login Controller', () => {
-  // Variables partagées pour les tests
+describe('Login Controller Tests', () => {
+  // Données de test communes
   const mockUser = {
-    _id: '123',
+    _id: '507f191e810c19729de860ea',
     email: 'marwan@gmail.com',
-    password: 'hashedPassword123',
-    toObject: jest.fn().mockReturnValue({
-      _id: '123',
-      email: 'marwan@gmail.com'
-    })
+    password: '$2b$10$hashedpassword123',
+    toObject() {
+      return { _id: this._id, email: this.email }
+    }
   };
 
-  const validCredentials = {
-    email: 'marwan@gmail.com',
-    password: '123456789'
+  const validReq = {
+    body: {
+      email: 'marwan@gmail.com',
+      password: 'correctPassword123'
+    }
+  };
+
+  // Objet réponse mocké
+  const mockRes = {
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn()
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // Configuration par défaut des mocks
-    createToken.mockReturnValue('fake.jwt.token');
+    // Configuration par défaut
+    createToken.mockReturnValue('generated.jwt.token');
   });
 
-  // Test 1: Champs manquants
-  describe('When email or password is missing', () => {
-    it('should return 400 status with error message', async () => {
-      const req = { body: {} };
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn()
-      };
+  describe('Failure Cases', () => {
+    it('should return 400 when email or password is missing', async () => {
+      await loginUser({ body: {} }, mockRes);
 
-      await loginUser(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
         message: 'Email and password are required'
       });
     });
-  });
 
-  // Test 2: Utilisateur non trouvé
-  describe('When user is not found', () => {
-    it('should return 401 status with invalid credentials message', async () => {
+    it('should return 401 when user does not exist', async () => {
       const User = require('../../model/User');
       User.findOne.mockResolvedValue(null);
 
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn()
-      };
+      await loginUser(validReq, mockRes);
 
-      await loginUser({ body: validCredentials }, res);
-
-      expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({
+      expect(User.findOne).toHaveBeenCalledWith({ email: validReq.body.email });
+      expect(mockRes.status).toHaveBeenCalledWith(401);
+      expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
         message: 'Invalid credentials'
       });
     });
-  });
 
-  // Test 3: Mot de passe incorrect
-  describe('When password is incorrect', () => {
-    it('should return 401 status with invalid credentials message', async () => {
+    it('should return 401 when password is incorrect', async () => {
       const User = require('../../model/User');
       User.findOne.mockResolvedValue(mockUser);
       comparePwd.mockResolvedValue(false);
 
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn()
-      };
+      await loginUser(validReq, mockRes);
 
-      await loginUser({ body: validCredentials }, res);
-
-      expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        message: 'Invalid credentials'
-      });
       expect(comparePwd).toHaveBeenCalledWith(
-        validCredentials.password,
+        validReq.body.password,
         mockUser.password
       );
+      expect(mockRes.status).toHaveBeenCalledWith(401);
     });
   });
 
-  // Test 4: Login réussi
-  describe('When credentials are valid', () => {
-    it('should return token and user data with 200 status', async () => {
+  describe('Success Cases', () => {
+    it('should return 200 with token and user data when login succeeds', async () => {
       const User = require('../../model/User');
       User.findOne.mockResolvedValue(mockUser);
       comparePwd.mockResolvedValue(true);
 
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn()
-      };
+      await loginUser(validReq, mockRes);
 
-      await loginUser({ body: validCredentials }, res);
-
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({
         success: true,
-        token: 'fake.jwt.token',
+        token: 'generated.jwt.token',
         user: {
-          _id: '123',
-          email: 'marwan@gmail.com'
+          _id: mockUser._id,
+          email: mockUser.email
         },
         message: 'Login successful'
       });
-      expect(createToken).toHaveBeenCalledWith({ userId: '123' });
+      expect(createToken).toHaveBeenCalledWith({ userId: mockUser._id });
     });
   });
 
-  // Test 5: Erreur serveur
-  describe('When server error occurs', () => {
-    it('should return 500 status with error message', async () => {
+  describe('Error Handling', () => {
+    it('should return 500 when database error occurs', async () => {
       const User = require('../../model/User');
-      User.findOne.mockRejectedValue(new Error('Database error'));
+      User.findOne.mockRejectedValue(new Error('DB Connection Error'));
 
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn()
-      };
+      await loginUser(validReq, mockRes);
 
-      await loginUser({ body: validCredentials }, res);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({
+      expect(mockRes.status).toHaveBeenCalledWith(500);
+      expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
         message: 'Server error'
       });

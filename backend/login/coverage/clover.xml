@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1744801657314" clover="3.2.0">
-  <project timestamp="1744801657315" name="All files">
-    <metrics statements="55" coveredstatements="23" conditionals="6" coveredconditionals="3" methods="7" coveredmethods="1" elements="68" coveredelements="27" complexity="0" loc="55" ncloc="55" packages="2" files="3" classes="3"/>
+<coverage generated="1744801841476" clover="3.2.0">
+  <project timestamp="1744801841477" name="All files">
+    <metrics statements="55" coveredstatements="13" conditionals="6" coveredconditionals="0" methods="7" coveredmethods="0" elements="68" coveredelements="13" complexity="0" loc="55" ncloc="55" packages="2" files="3" classes="3"/>
     <package name="controllers">
-      <metrics statements="39" coveredstatements="17" conditionals="6" coveredconditionals="3" methods="4" coveredmethods="1"/>
+      <metrics statements="39" coveredstatements="7" conditionals="6" coveredconditionals="0" methods="4" coveredmethods="0"/>
       <file name="authController.js" path="E:\site-ecommerce\backend\login\controllers\authController.js">
-        <metrics statements="39" coveredstatements="17" conditionals="6" coveredconditionals="3" methods="4" coveredmethods="1"/>
+        <metrics statements="39" coveredstatements="7" conditionals="6" coveredconditionals="0" methods="4" coveredmethods="0"/>
         <line num="1" count="2" type="stmt"/>
         <line num="2" count="2" type="stmt"/>
         <line num="3" count="2" type="stmt"/>
@@ -22,20 +22,20 @@
         <line num="22" count="0" type="stmt"/>
         <line num="24" count="0" type="stmt"/>
         <line num="28" count="2" type="stmt"/>
-        <line num="29" count="3" type="stmt"/>
-        <line num="30" count="3" type="stmt"/>
-        <line num="32" count="3" type="stmt"/>
-        <line num="34" count="3" type="stmt"/>
-        <line num="36" count="3" type="cond" truecount="2" falsecount="0"/>
-        <line num="37" count="2" type="stmt"/>
-        <line num="40" count="1" type="stmt"/>
-        <line num="41" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="42" count="1" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="36" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="41" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="42" count="0" type="stmt"/>
         <line num="45" count="0" type="stmt"/>
         <line num="46" count="0" type="stmt"/>
         <line num="47" count="0" type="stmt"/>
         <line num="50" count="0" type="stmt"/>
-        <line num="52" count="3" type="stmt"/>
+        <line num="52" count="0" type="stmt"/>
         <line num="55" count="2" type="stmt"/>
         <line num="56" count="0" type="stmt"/>
         <line num="57" count="0" type="stmt"/>
