@@ -33,8 +33,14 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and Push Docker image
+      - name: Build Docker image
         run: |
+          # If your Dockerfile is not in root directory, specify the path:
+          # docker build -f path/to/Dockerfile -t marwen77/mysiteweb:latest .
+          
+          # Or change directory first:
+          # cd path/to/dockerfile/directory
+          
           if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
             docker build -t marwen77/mysiteweb:pr-${{ github.event.number }} .
           else
