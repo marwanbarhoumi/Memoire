@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1744803606323" clover="3.2.0">
-  <project timestamp="1744803606323" name="All files">
-    <metrics statements="55" coveredstatements="31" conditionals="6" coveredconditionals="4" methods="7" coveredmethods="3" elements="68" coveredelements="38" complexity="0" loc="55" ncloc="55" packages="2" files="3" classes="3"/>
+<coverage generated="1744803695843" clover="3.2.0">
+  <project timestamp="1744803695843" name="All files">
+    <metrics statements="56" coveredstatements="32" conditionals="6" coveredconditionals="4" methods="7" coveredmethods="3" elements="69" coveredelements="39" complexity="0" loc="56" ncloc="56" packages="2" files="3" classes="3"/>
     <package name="controllers">
-      <metrics statements="39" coveredstatements="20" conditionals="6" coveredconditionals="4" methods="4" coveredmethods="1"/>
+      <metrics statements="40" coveredstatements="21" conditionals="6" coveredconditionals="4" methods="4" coveredmethods="1"/>
       <file name="authController.js" path="E:\site-ecommerce\backend\login\controllers\authController.js">
-        <metrics statements="39" coveredstatements="20" conditionals="6" coveredconditionals="4" methods="4" coveredmethods="1"/>
+        <metrics statements="40" coveredstatements="21" conditionals="6" coveredconditionals="4" methods="4" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
@@ -33,18 +33,19 @@
         <line num="44" count="1" type="stmt"/>
         <line num="48" count="1" type="stmt"/>
         <line num="49" count="1" type="stmt"/>
-        <line num="50" count="1" type="stmt"/>
+        <line num="52" count="1" type="stmt"/>
         <line num="53" count="1" type="stmt"/>
-        <line num="59" count="0" type="stmt"/>
-        <line num="63" count="1" type="stmt"/>
-        <line num="64" count="0" type="stmt"/>
-        <line num="65" count="0" type="stmt"/>
-        <line num="67" count="0" type="stmt"/>
-        <line num="71" count="1" type="stmt"/>
-        <line num="72" count="0" type="stmt"/>
-        <line num="73" count="0" type="stmt"/>
-        <line num="74" count="0" type="stmt"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="67" count="1" type="stmt"/>
+        <line num="68" count="0" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="71" count="0" type="stmt"/>
+        <line num="75" count="1" type="stmt"/>
         <line num="76" count="0" type="stmt"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="78" count="0" type="stmt"/>
+        <line num="80" count="0" type="stmt"/>
       </file>
     </package>
     <package name="utils">
