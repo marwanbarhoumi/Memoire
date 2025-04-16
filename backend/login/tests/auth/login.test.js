@@ -1,6 +1,6 @@
-const { login } = require('../../controllers/authController');
-const { comparePassword } = require('../../utils/PasswordFunction');
-const { generateToken } = require('../../utils/Token');
+const { loginuser } = require('../../controllers/authController');
+const { comparePwd } = require('../../utils/PasswordFunction');
+const { createToken } = require('../../utils/Token');
 
 // Mock des dépendances
 jest.mock('../../utils/PasswordFunction');
@@ -20,7 +20,7 @@ describe('Login Controller', () => {
       json: jest.fn(),
     };
 
-    await login(req, res);
+    await loginuser(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
@@ -44,7 +44,7 @@ describe('Login Controller', () => {
       json: jest.fn(),
     };
 
-    await login(req, res);
+    await loginuser(req, res);
 
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith({
@@ -59,7 +59,7 @@ describe('Login Controller', () => {
       email: 'test@test.com',
       password: 'hashedpassword',
     });
-    comparePassword.mockResolvedValue(false);
+    comparePwd.mockResolvedValue(false);
 
     const req = { 
       body: { 
@@ -72,7 +72,7 @@ describe('Login Controller', () => {
       json: jest.fn(),
     };
 
-    await login(req, res);
+    await loginuser(req, res);
 
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith({
@@ -94,8 +94,8 @@ describe('Login Controller', () => {
 
     const User = require('../../model/User');
     User.findOne.mockResolvedValue(mockUser);
-    comparePassword.mockResolvedValue(true);
-    generateToken.mockReturnValue('fake.jwt.token');
+    comparePwd.mockResolvedValue(true);
+    createToken.mockReturnValue('fake.jwt.token');
 
     const req = { 
       body: { 
@@ -108,7 +108,7 @@ describe('Login Controller', () => {
       json: jest.fn(),
     };
 
-    await login(req, res);
+    await loginuser(req, res);
 
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
@@ -118,6 +118,6 @@ describe('Login Controller', () => {
         email: 'test@test.com',
       },
     });
-    expect(generateToken).toHaveBeenCalledWith({ userId: '123' });
+    expect(createToken).toHaveBeenCalledWith({ userId: '123' });
   });
 });

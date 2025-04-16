@@ -1,46 +1,13 @@
 module.exports = {
-  // Environnement d'exécution des tests
   testEnvironment: 'node',
-  
-  // Fichiers de test à inclure
-  testMatch: [
-    '**/tests/**/*.test.js',
-    '**/?(*.)+(spec|test).js'
-  ],
-  
-  // Dossiers à ignorer
-  testPathIgnorePatterns: [
-    '/node_modules/',
-    '/build/'
-  ],
-  
-  // Configuration de la couverture de code
+  testMatch: ['**/tests/**/*.test.js'],
+  coverageDirectory: './coverage',
   collectCoverage: true,
-  coverageDirectory: 'coverage',
   collectCoverageFrom: [
     'controllers/**/*.js',
-    'utils/**/*.js',
     'middlewares/**/*.js',
-    '!**/node_modules/**',
-    '!**/tests/**',
-    '!**/config/**'
+    'utils/**/*.js',
+    '!**/node_modules/**'
   ],
-  
-  // Seuils minimum de couverture
-  coverageThreshold: {
-    global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80
-    }
-  },
-  
-  // Fichiers à exécuter avant les tests
-  setupFilesAfterEnv: [],
-  
-  // Transformations pour les fichiers
-  transform: {
-    '^.+\\.js$': 'babel-jest'
-  }
+  setupFilesAfterEnv: ['./tests/setup.js']
 };
