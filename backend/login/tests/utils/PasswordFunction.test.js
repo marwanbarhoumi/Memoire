@@ -35,8 +35,8 @@ describe('Login Controller', () => {
 
     const req = { 
       body: { 
-        email: 'nonexistent@test.com', 
-        password: 'password' 
+        email: 'marwan@gmail.com', 
+        password: '123456789' 
       } 
     };
     const res = {
@@ -56,15 +56,15 @@ describe('Login Controller', () => {
   it('should return 401 if password is incorrect', async () => {
     const User = require('../../model/User');
     User.findOne.mockResolvedValue({
-      email: 'test@test.com',
-      password: 'hashedpassword',
+      email: 'marwan@gmail.com', 
+        password: '123456789',
     });
     comparePwd.mockResolvedValue(false);
 
     const req = { 
       body: { 
-        email: 'test@test.com', 
-        password: 'wrongpassword' 
+        email: 'marwan@gmail.com', 
+        password: '123456789' 
       } 
     };
     const res = {
@@ -84,8 +84,8 @@ describe('Login Controller', () => {
   it('should return token and user data if login is successful', async () => {
     const mockUser = {
       _id: '123',
-      email: 'test@test.com',
-      password: 'hashedpassword',
+      email: 'marwan@gmail.com', 
+        password: '123456789',
       toObject: jest.fn().mockReturnValue({
         _id: '123',
         email: 'test@test.com',
@@ -99,8 +99,8 @@ describe('Login Controller', () => {
 
     const req = { 
       body: { 
-        email: 'test@test.com', 
-        password: 'correctpassword' 
+        email: 'marwan@gmail.com', 
+        password: '123456789'       
       } 
     };
     const res = {
@@ -115,8 +115,8 @@ describe('Login Controller', () => {
       token: 'fake.jwt.token',
       user: {
         _id: '123',
-        email: 'test@test.com',
-      },
+email: 'marwan@gmail.com', 
+              },
     });
     expect(createToken).toHaveBeenCalledWith({ userId: '123' });
   });

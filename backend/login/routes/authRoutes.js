@@ -1,5 +1,5 @@
 const express = require("express");
-const { register, loginuser, getCurrentUser, getAllUsers } = require("../controllers/authControllers");
+const { register, loginuser, getCurrentUser, getAllUsers } = require("../controllers/authController");
 const {
   registerRules,
   validator,
