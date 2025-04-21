@@ -1,13 +1,7 @@
 module.exports = {
-  testEnvironment: 'node',
-  testMatch: ['**/tests/**/*.test.js'],
-  coverageDirectory: './coverage',
-  collectCoverage: true,
-  collectCoverageFrom: [
-    'controllers/**/*.js',
-    'middlewares/**/*.js',
-    'utils/**/*.js',
-    '!**/node_modules/**'
-  ],
-  setupFilesAfterEnv: ['./tests/setup.js']
+  moduleNameMapper: {
+    '^react-router-dom$': '<rootDir>/node_modules/react-router-dom',
+  },
+  testEnvironment: 'jsdom',
+  moduleDirectories: ['node_modules', 'src'],
 };
